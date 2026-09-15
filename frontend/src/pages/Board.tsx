@@ -27,18 +27,31 @@ export default function Board() {
   const [showReport, setShowReport] = useState(false);
   const [view, setView] = useState<"board" | "timeline">("board");
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (showLoading = true) => {
     if (!id) return;
-    setLoading(true);
-    const [p, t] = await Promise.all([api.getProject(id), api.listTasks(id)]);
-    setProject(p);
-    setTasks(t);
-    setLoading(false);
+    if (showLoading) setLoading(true);
+    try {
+      const [p, t] = await Promise.all([api.getProject(id), api.listTasks(id)]);
+      setProject(p);
+      setTasks(t);
+    } finally {
+      if (showLoading) setLoading(false);
+    }
   }, [id]);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    if (!id) return;
+    let refreshTimer: number | undefined;
+    return api.subscribeToProject(id, () => {
+      // Coalesce a burst of edits into one quiet background refresh, without disrupting the board.
+      if (refreshTimer !== undefined) window.clearTimeout(refreshTimer);
+      refreshTimer = window.setTimeout(() => load(false), 150);
+    });
+  }, [id, load]);
 
   const grouped = useMemo(() => {
     const map: Record<TaskStatus, Task[]> = { TODO: [], IN_PROGRESS: [], BLOCKED: [], DONE: [] };
@@ -121,6 +134,12 @@ export default function Board() {
             {project.description && <p className="text-ink-soft text-sm mt-1">{project.description}</p>}
           </div>
           <div className="flex gap-2 shrink-0">
+            <button
+              onClick={() => window.location.assign(`/projects/${project.id}/memory`)}
+              className="text-sm font-medium px-3.5 py-2 rounded-md border border-border hover:border-accent transition-colors"
+            >
+              Project memory
+            </button>
             <button
               onClick={handleAddMember}
               className="text-sm font-medium px-3.5 py-2 rounded-md border border-border hover:border-accent transition-colors"

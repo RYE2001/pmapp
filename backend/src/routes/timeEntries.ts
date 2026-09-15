@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { prisma } from "../db";
+import { publishProjectEvent } from "../events";
 import { requireAuth } from "../middleware/auth";
 
 const router = Router();
@@ -48,6 +49,17 @@ router.post("/task/:taskId", async (req, res) => {
     },
     include: { user: { select: { id: true, name: true } } },
   });
+
+  await prisma.taskActivity.create({
+    data: {
+      taskId: task.id,
+      actorId: req.user!.userId,
+      action: "time_logged",
+      summary: `logged ${minutes} minute${minutes === 1 ? "" : "s"}`,
+    },
+  });
+
+  publishProjectEvent(task.projectId, { type: "time.logged", taskId: task.id });
 
   res.status(201).json(entry);
 });

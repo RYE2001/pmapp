@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { prisma } from "../db";
+import { publishProjectEvent } from "../events";
 import { requireAuth } from "../middleware/auth";
 
 const router = Router();
@@ -64,6 +65,15 @@ router.post("/task/:taskId", async (req, res) => {
 
   // Keep the task's status in sync with the fact that it's now blocked.
   await prisma.task.update({ where: { id: req.params.taskId }, data: { status: "BLOCKED" } });
+  await prisma.taskActivity.create({
+    data: {
+      taskId: task.id,
+      actorId: req.user!.userId,
+      action: "blocker_reported",
+      summary: "reported a blocker",
+    },
+  });
+  publishProjectEvent(task.projectId, { type: "blocker.reported", taskId: task.id });
 
   res.status(201).json({ blocker });
 });
@@ -87,6 +97,16 @@ router.post("/:blockerId/comments", async (req, res) => {
     include: { author: { select: { id: true, name: true } } },
   });
 
+  await prisma.taskActivity.create({
+    data: {
+      taskId: task.id,
+      actorId: req.user!.userId,
+      action: "blocker_commented",
+      summary: "commented on a blocker",
+    },
+  });
+  publishProjectEvent(task.projectId, { type: "blocker.commented", taskId: task.id });
+
   res.status(201).json(comment);
 });
 
@@ -109,6 +129,22 @@ router.patch("/:blockerId", async (req, res) => {
     },
     include: blockerInclude,
   });
+
+  if (resolved === true) {
+    // Resolving from the blocker panel should also return the task to active work.
+    await prisma.task.update({ where: { id: task.id }, data: { status: "IN_PROGRESS" } });
+  }
+  if (isExternal !== undefined || resolved !== undefined) {
+    await prisma.taskActivity.create({
+      data: {
+        taskId: task.id,
+        actorId: req.user!.userId,
+        action: resolved === true ? "blocker_resolved" : "blocker_updated",
+        summary: resolved === true ? "resolved the blocker" : "flagged the blocker for admin attention",
+      },
+    });
+    publishProjectEvent(task.projectId, { type: "blocker.updated", taskId: task.id });
+  }
 
   res.json({ blocker: updated });
 });

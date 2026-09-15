@@ -82,6 +82,14 @@ Open `http://localhost:5173`, create an account, and you're in.
    of Blocked (or hitting "Mark resolved" in the panel) closes it out automatically.
 8. **My tasks** — use the My tasks link in the sidebar to see your assigned work across every
   project, with active blockers first and the remaining tasks sorted by due date.
+9. **Project memory** — open Project memory from a project board to record decisions with their
+   rationale, alternatives, evidence links, people involved, and impacted tasks. Decisions can be
+   marked active, superseded, or reversed as the project evolves.
+9. **Collaborate on a task** — open a task and use its Conversation panel to leave comments.
+   Type `@` to select and mention a project teammate. The Activity panel keeps a recent history
+   of task changes, comments, blocker changes, and logged time.
+10. **Live boards** — teammates who have the same project board open see changes refresh
+   automatically when tasks, comments, blockers, or time entries change.
 
 ## Project structure
 
@@ -99,7 +107,7 @@ pm-app/
     └── src/
         ├── api/client.ts         # typed fetch wrapper for the API
         ├── context/AuthContext.tsx
-        ├── pages/                # Login, Projects, Board, MyTasks
+      ├── pages/                # Login, Projects, Board, MyTasks, ProjectMemory
         └── components/           # Layout, TaskCard, TaskModal, TimelineView
 ```
 
@@ -109,9 +117,6 @@ This covers the core loop (projects → tasks → status → time → timeline �
 were deliberately left out of the starter so it stays a starting point rather than a 10,000-line
 first response:
 
-- **Real-time updates** — right now the board refetches on load; multiple people editing at once
-  won't see each other's changes until they reload. Adding WebSockets (Socket.IO) is the natural
-  next step.
 - **Notifications outside the app** — the admin blocker alert is in-app only (a banner on the
   board). Piping it to email or Slack when a task gets flagged "needs admin" would be the natural
   next step.

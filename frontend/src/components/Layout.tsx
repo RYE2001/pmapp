@@ -27,6 +27,18 @@ export default function Layout({ children }: { children: ReactNode }) {
           >
             My tasks
           </Link>
+          <Link
+            to="/timeline"
+            className="block px-2.5 py-2 rounded-md text-sm text-ink-soft hover:bg-paper hover:text-ink transition-colors"
+          >
+            My timeline
+          </Link>
+          <Link
+            to="/team-capacity"
+            className="block px-2.5 py-2 rounded-md text-sm text-ink-soft hover:bg-paper hover:text-ink transition-colors"
+          >
+            Team capacity
+          </Link>
         </div>
         <div className="px-5 py-4 border-t border-border">
           <div className="text-sm font-medium truncate">{user?.name}</div>

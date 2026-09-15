@@ -4,6 +4,9 @@ import Login from "./pages/Login";
 import Projects from "./pages/Projects";
 import Board from "./pages/Board";
 import MyTasks from "./pages/MyTasks";
+import ProjectMemory from "./pages/ProjectMemory";
+import PersonalTimeline from "./pages/PersonalTimeline";
+import TeamCapacity from "./pages/TeamCapacity";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { user, loading } = useAuth();
@@ -29,6 +32,16 @@ export default function App() {
         element={
           <RequireAuth>
             <MyTasks />
+          </RequireAuth>
+        }
+      />
+      <Route path="/timeline" element={<RequireAuth><PersonalTimeline /></RequireAuth>} />
+      <Route path="/team-capacity" element={<RequireAuth><TeamCapacity /></RequireAuth>} />
+      <Route
+        path="/projects/:id/memory"
+        element={
+          <RequireAuth>
+            <ProjectMemory />
           </RequireAuth>
         }
       />
