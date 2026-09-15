@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  BLOCKED
+  DONE
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model User {
+  id            String          @id @default(uuid())
+  email         String          @unique
+  passwordHash  String
+  name          String
+  createdAt     DateTime        @default(now())
+  memberships   ProjectMember[]
+  tasksAssigned Task[]          @relation("AssignedTasks")
+  timeEntries   TimeEntry[]
+  reportedBlockers Blocker[]        @relation("BlockerReporter")
+  blockerComments  BlockerComment[]
+}
+
+model Project {
+  id          String          @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime        @default(now())
+  members     ProjectMember[]
+  tasks       Task[]
+}
+
+model ProjectMember {
+  id        String   @id @default(uuid())
+  role      Role     @default(MEMBER)
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId String
+  joinedAt  DateTime @default(now())
+
+  @@unique([userId, projectId])
+}
+
+model Task {
+  id          String      @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus  @default(TODO)
+  priority    Priority    @default(MEDIUM)
+  startDate   DateTime?
+  dueDate     DateTime?
+  position    Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String
+  assignee    User?       @relation("AssignedTasks", fields: [assigneeId], references: [id])
+  assigneeId  String?
+  timeEntries TimeEntry[]
+  blockers    Blocker[]
+}
+
+model Blocker {
+  id          String           @id @default(uuid())
+  reason      String
+  isExternal  Boolean          @default(false)
+  resolved    Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  resolvedAt  DateTime?
+  task        Task             @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId      String
+  createdBy   User             @relation("BlockerReporter", fields: [createdById], references: [id])
+  createdById String
+  comments    BlockerComment[]
+}
+
+model BlockerComment {
+  id        String   @id @default(uuid())
+  message   String
+  createdAt DateTime @default(now())
+  blocker   Blocker  @relation(fields: [blockerId], references: [id], onDelete: Cascade)
+  blockerId String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+}
+
+model TimeEntry {
+  id       String   @id @default(uuid())
+  minutes  Int
+  note     String?
+  loggedAt DateTime @default(now())
+  task     Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId   String
+  user     User     @relation(fields: [userId], references: [id])
+  userId   String
+}
