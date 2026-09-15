@@ -12,6 +12,10 @@ time blocks, and availability remain as operational write models while consumers
 allocation API. `TimeEntry` remains the actual-work source of truth rather than being copied into
 planning records prematurely.
 
+Deadline what-if scenarios use task effort estimates, project members, prorated capacity, current
+allocations, task priority, and project visibility to produce explainable staffing or scope options.
+They are decision support, not automatic changes to assignments.
+
 ## Users and decisions
 
  Context switching is surfaced when a person has planned work across three or more projects in the selected week.

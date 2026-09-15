@@ -10,6 +10,7 @@ import blockerRoutes from "./routes/blockers";
 import eventRoutes from "./routes/events";
 import decisionRoutes from "./routes/decisions";
 import resourceRoutes from "./routes/resources";
+import scenarioRoutes from "./routes/scenarios";
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use("/api/blockers", blockerRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/decisions", decisionRoutes);
 app.use("/api/resources", resourceRoutes);
+app.use("/api/scenarios", scenarioRoutes);
 
 // Catch-all error handler so unexpected failures return JSON, not an HTML stack trace.
 app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

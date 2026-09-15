@@ -50,6 +50,7 @@ export interface Task {
   description: string | null;
   status: TaskStatus;
   priority: Priority;
+  estimatedMinutes: number;
   startDate: string | null;
   dueDate: string | null;
   position: number;
@@ -173,6 +174,31 @@ export interface TeamCapacity {
   weekEnd: string;
   people: CapacityPerson[];
   plannedVsActual: { id: string; title: string; plannedMinutes: number; actualMinutes: number }[];
+}
+
+export interface DeadlineScenario {
+  project: { id: string; name: string; priority: number };
+  newDeadline: string;
+  horizonWeeks: number;
+  currentWorkloadMinutes: number;
+  availableCapacityMinutes: number;
+  deficitMinutes: number;
+  options: {
+    movePeople: {
+      type: "MOVE_PERSON";
+      person: User;
+      availableMinutes: number;
+      projectRiskPercent: number;
+      projectsAffected: number;
+      explanation: string;
+    }[];
+    externalResource: { additionalMinutes: number; explanation: string };
+    reduceScope: {
+      savedMinutes: number;
+      fullyCovered: boolean;
+      tasks: { id: string; title: string; estimatedMinutes: number }[];
+    };
+  };
 }
 
 export type DecisionStatus = "ACTIVE" | "SUPERSEDED" | "REVERSED";
@@ -383,6 +409,12 @@ export const api = {
     request<void>(`/api/resources/assignments/${assignmentId}`, { method: "DELETE" }),
 
   getTeamCapacity: (start: string) => request<TeamCapacity>(`/api/resources/team-capacity?start=${encodeURIComponent(start)}`),
+
+  runDeadlineScenario: (projectId: string, newDeadline: string) =>
+    request<DeadlineScenario>(`/api/scenarios/projects/${projectId}/deadline`, {
+      method: "POST",
+      body: JSON.stringify({ newDeadline }),
+    }),
 
   listTimeEntries: (taskId: string) => request<TimeEntry[]>(`/api/time-entries/task/${taskId}`),
 

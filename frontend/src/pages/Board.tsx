@@ -135,6 +135,12 @@ export default function Board() {
           </div>
           <div className="flex gap-2 shrink-0">
             <button
+              onClick={() => window.location.assign(`/projects/${project.id}/scenario`)}
+              className="text-sm font-medium px-3.5 py-2 rounded-md border border-border hover:border-accent transition-colors"
+            >
+              What-if deadline
+            </button>
+            <button
               onClick={() => window.location.assign(`/projects/${project.id}/memory`)}
               className="text-sm font-medium px-3.5 py-2 rounded-md border border-border hover:border-accent transition-colors"
             >

@@ -46,10 +46,10 @@ npm run dev              # starts the API on http://localhost:4000
 ```
 
 The demo seed clears all local application data before creating a realistic workspace with three
-projects, four users, tasks, skills, blockers, comments, decisions, assignments, availability,
+projects, five users, tasks, skills, blockers, comments, decisions, assignments, availability,
 planned time, work allocations, and logged time. All demo users use the password `demo1234`:
-`amina@demo.waypoint.local`, `ali@demo.waypoint.local`, `sarah@demo.waypoint.local`, and
-`karim@demo.waypoint.local`.
+`amina@demo.waypoint.local`, `ali@demo.waypoint.local`, `sarah@demo.waypoint.local`,
+`karim@demo.waypoint.local`, and `nadia@demo.waypoint.local`.
 Open **Team capacity** after seeding to see Karim intentionally overloaded at about 139% and
 Sarah flagged for context switching across three projects. Open **My timeline** to inspect the
 planned work, meetings, support block, and unavailable time behind those signals.
@@ -106,6 +106,9 @@ Open `http://localhost:5173`, create an account, and you're in.
    of task changes, comments, blocker changes, and logged time.
 10. **Live boards** — teammates who have the same project board open see changes refresh
    automatically when tasks, comments, blockers, or time entries change.
+11. **What-if deadline** — use the What-if deadline action on a project board to calculate the
+  capacity deficit for a proposed deadline and compare moving people, external capacity, or
+  reducing low-priority scope.
 
 ## Project structure
 

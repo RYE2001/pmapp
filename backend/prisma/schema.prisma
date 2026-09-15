@@ -53,6 +53,7 @@ model Project {
   id          String          @id @default(uuid())
   name        String
   description String?
+  priority    Int             @default(50)
   createdAt   DateTime        @default(now())
   members     ProjectMember[]
   tasks       Task[]
@@ -79,6 +80,7 @@ model Task {
   description String?
   status      TaskStatus  @default(TODO)
   priority    Priority    @default(MEDIUM)
+  estimatedMinutes Int      @default(0)
   startDate   DateTime?
   dueDate     DateTime?
   position    Int         @default(0)

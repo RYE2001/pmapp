@@ -47,17 +47,18 @@ async function main() {
     await tx.skill.deleteMany();
     await tx.user.deleteMany();
 
-    const [amina, ali, sarah, karim] = await Promise.all([
+    const [amina, ali, sarah, karim, nadia] = await Promise.all([
       tx.user.create({ data: { name: "Amina Benali", email: "amina@demo.waypoint.local", passwordHash, weeklyCapacityMinutes: 2400 } }),
       tx.user.create({ data: { name: "Ali Mansouri", email: "ali@demo.waypoint.local", passwordHash, weeklyCapacityMinutes: 2400 } }),
       tx.user.create({ data: { name: "Sarah Haddad", email: "sarah@demo.waypoint.local", passwordHash, weeklyCapacityMinutes: 2100 } }),
       tx.user.create({ data: { name: "Karim Toumi", email: "karim@demo.waypoint.local", passwordHash, weeklyCapacityMinutes: 2100 } }),
+      tx.user.create({ data: { name: "Nadia Saidi", email: "nadia@demo.waypoint.local", passwordHash, weeklyCapacityMinutes: 1800 } }),
     ]);
 
     const [plant, rollout, internal] = await Promise.all([
-      tx.project.create({ data: { name: "Plant modernization", description: "Upgrade the line controls, motors, and operator experience." } }),
-      tx.project.create({ data: { name: "Customer rollout", description: "Prepare the new control package for the first customer site." } }),
-      tx.project.create({ data: { name: "Internal operations", description: "Shared support, documentation, and process improvements." } }),
+      tx.project.create({ data: { name: "Plant modernization", description: "Upgrade the line controls, motors, and operator experience.", priority: 90 } }),
+      tx.project.create({ data: { name: "Customer rollout", description: "Prepare the new control package for the first customer site.", priority: 75 } }),
+      tx.project.create({ data: { name: "Internal operations", description: "Shared support, documentation, and process improvements.", priority: 40 } }),
     ]);
 
     await tx.projectMember.createMany({
@@ -72,6 +73,8 @@ async function main() {
         { projectId: internal.id, userId: amina.id, role: "ADMIN" },
         { projectId: internal.id, userId: sarah.id, role: "MEMBER" },
         { projectId: internal.id, userId: karim.id, role: "MEMBER" },
+        { projectId: rollout.id, userId: nadia.id, role: "MEMBER" },
+        { projectId: internal.id, userId: nadia.id, role: "MEMBER" },
       ],
     });
 
@@ -91,15 +94,17 @@ async function main() {
         { userId: karim.id, skillId: electrical.id, level: 90 },
         { userId: karim.id, skillId: plc.id, level: 72 },
         { userId: amina.id, skillId: documentation.id, level: 95 },
+        { userId: nadia.id, skillId: scada.id, level: 86 },
       ],
     });
 
-    const motor = await tx.task.create({ data: { projectId: plant.id, title: "Replace motor X", description: "Replace the motor after the vibration threshold was exceeded.", status: TaskStatus.BLOCKED, priority: "HIGH", startDate: atDay(monday, 1, 9), dueDate: atDay(monday, 3, 17), position: 1, assigneeId: karim.id } });
-    const plcTask = await tx.task.create({ data: { projectId: plant.id, title: "PLC communication architecture", description: "Finalize the Modbus TCP architecture for the upgraded line.", status: TaskStatus.IN_PROGRESS, priority: "HIGH", startDate: atDay(monday, 0, 9), dueDate: atDay(monday, 4, 17), position: 2, assigneeId: ali.id } });
-    const hmi = await tx.task.create({ data: { projectId: plant.id, title: "HMI alarm redesign", description: "Make critical alarms easier for operators to understand.", status: TaskStatus.TODO, priority: "MEDIUM", startDate: atDay(monday, 2, 10), dueDate: atDay(monday, 7, 17), position: 3, assigneeId: sarah.id } });
-    const commissioning = await tx.task.create({ data: { projectId: plant.id, title: "Line commissioning checklist", status: TaskStatus.DONE, priority: "MEDIUM", dueDate: atDay(monday, -1, 17), position: 4, assigneeId: ali.id } });
-    const rolloutTask = await tx.task.create({ data: { projectId: rollout.id, title: "Customer site SCADA package", description: "Prepare the site-specific SCADA screens and tags.", status: TaskStatus.IN_PROGRESS, priority: "HIGH", startDate: atDay(monday, 1, 13), dueDate: atDay(monday, 5, 17), position: 1, assigneeId: sarah.id } });
-    const docsTask = await tx.task.create({ data: { projectId: internal.id, title: "Update maintenance playbook", status: TaskStatus.TODO, priority: "LOW", dueDate: atDay(monday, 4, 16), position: 1, assigneeId: sarah.id } });
+    const motor = await tx.task.create({ data: { projectId: plant.id, title: "Replace motor X", description: "Replace the motor after the vibration threshold was exceeded.", status: TaskStatus.BLOCKED, priority: "HIGH", estimatedMinutes: 1200, startDate: atDay(monday, 1, 9), dueDate: atDay(monday, 3, 17), position: 1, assigneeId: karim.id } });
+    const plcTask = await tx.task.create({ data: { projectId: plant.id, title: "PLC communication architecture", description: "Finalize the Modbus TCP architecture for the upgraded line.", status: TaskStatus.IN_PROGRESS, priority: "HIGH", estimatedMinutes: 900, startDate: atDay(monday, 0, 9), dueDate: atDay(monday, 4, 17), position: 2, assigneeId: ali.id } });
+    const hmi = await tx.task.create({ data: { projectId: plant.id, title: "HMI alarm redesign", description: "Make critical alarms easier for operators to understand.", status: TaskStatus.TODO, priority: "MEDIUM", estimatedMinutes: 600, startDate: atDay(monday, 2, 10), dueDate: atDay(monday, 7, 17), position: 3, assigneeId: sarah.id } });
+    const commissioning = await tx.task.create({ data: { projectId: plant.id, title: "Line commissioning checklist", status: TaskStatus.DONE, priority: "MEDIUM", estimatedMinutes: 360, dueDate: atDay(monday, -1, 17), position: 4, assigneeId: ali.id } });
+    await tx.task.create({ data: { projectId: plant.id, title: "Operator training notes", status: TaskStatus.TODO, priority: "LOW", estimatedMinutes: 240, dueDate: atDay(monday, 7, 17), position: 5, assigneeId: amina.id } });
+    const rolloutTask = await tx.task.create({ data: { projectId: rollout.id, title: "Customer site SCADA package", description: "Prepare the site-specific SCADA screens and tags.", status: TaskStatus.IN_PROGRESS, priority: "HIGH", estimatedMinutes: 720, startDate: atDay(monday, 1, 13), dueDate: atDay(monday, 5, 17), position: 1, assigneeId: sarah.id } });
+    const docsTask = await tx.task.create({ data: { projectId: internal.id, title: "Update maintenance playbook", status: TaskStatus.TODO, priority: "LOW", estimatedMinutes: 240, dueDate: atDay(monday, 4, 16), position: 1, assigneeId: sarah.id } });
 
     await tx.taskSkillRequirement.createMany({
       data: [
@@ -223,7 +228,7 @@ async function main() {
 
   console.log("Demo workspace seeded.");
   console.log("Demo password for all users: %s", DEMO_PASSWORD);
-  console.log("Users: amina, ali, sarah, karim @demo.waypoint.local");
+  console.log("Users: amina, ali, sarah, karim, nadia @demo.waypoint.local");
 }
 
 main()
