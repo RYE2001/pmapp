@@ -41,8 +41,18 @@ cd backend
 cp .env.example .env    # edit JWT_SECRET to a long random string before real use
 npm install
 npx prisma migrate dev --name init   # creates the tables
+npm run db:seed                       # optional: reset local data and load the demo workspace
 npm run dev              # starts the API on http://localhost:4000
 ```
+
+The demo seed clears all local application data before creating a realistic workspace with three
+projects, four users, tasks, skills, blockers, comments, decisions, assignments, availability,
+planned time, and logged time. All demo users use the password `demo1234`:
+`amina@demo.waypoint.local`, `ali@demo.waypoint.local`, `sarah@demo.waypoint.local`, and
+`karim@demo.waypoint.local`.
+Open **Team capacity** after seeding to see Karim intentionally overloaded at about 139% and
+Sarah flagged for context switching across three projects. Open **My timeline** to inspect the
+planned work, meetings, support block, and unavailable time behind those signals.
 
 `npx prisma migrate dev` needs internet access the first time (it downloads Prisma's local query
 engine). If you're on a locked-down corporate network and it fails, try again from an
