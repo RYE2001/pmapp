@@ -51,6 +51,20 @@ function validBlockKind(value: unknown): value is BlockKind {
   return typeof value === "string" && BLOCK_KINDS.includes(value as BlockKind);
 }
 
+router.get("/me/allocations", async (req, res) => {
+  const { start, end } = weekWindow(req.query.start);
+  const allocations = await prisma.workAllocation.findMany({
+    where: { userId: req.user!.userId, startsAt: { lt: end }, endsAt: { gt: start } },
+    include: {
+      project: { select: { id: true, name: true } },
+      task: { select: { id: true, title: true, status: true } },
+    },
+    orderBy: { startsAt: "asc" },
+  });
+
+  res.json({ weekStart: start, weekEnd: end, allocations });
+});
+
 router.get("/me/timeline", async (req, res) => {
   const { start, end } = weekWindow(req.query.start);
   const userId = req.user!.userId;

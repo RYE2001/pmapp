@@ -6,6 +6,12 @@ Waypoint v0.1 answers two operational questions every week: **where is each pers
 
 The core model is **person × time × work × project × capacity**. A task can have more than one planned allocation, each allocation becomes a dated time block on one person's timeline, and logged time remains separate as the actual record of work performed.
 
+The next canonical layer is `WorkAllocation`: one read model for planned task work, meetings,
+support, administration, training, unplanned work, and unavailable time. Existing assignments,
+time blocks, and availability remain as operational write models while consumers migrate to the
+allocation API. `TimeEntry` remains the actual-work source of truth rather than being copied into
+planning records prematurely.
+
 ## Users and decisions
 
  Context switching is surfaced when a person has planned work across three or more projects in the selected week.

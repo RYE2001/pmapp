@@ -46,6 +46,7 @@ model User {
   assignments     TaskAssignment[]
   timeBlocks      TimeBlock[]
   availability    Availability[]
+  workAllocations WorkAllocation[]
 }
 
 model Project {
@@ -57,6 +58,7 @@ model Project {
   tasks       Task[]
   decisions   Decision[]
   timeBlocks  TimeBlock[]
+  workAllocations WorkAllocation[]
 }
 
 model ProjectMember {
@@ -94,6 +96,56 @@ model Task {
   assignments   TaskAssignment[]
   timeBlocks    TimeBlock[]
   skillRequirements TaskSkillRequirement[]
+  workAllocations WorkAllocation[]
+}
+
+enum WorkAllocationType {
+  TASK
+  MEETING
+  SUPPORT
+  ADMIN
+  TRAINING
+  UNPLANNED
+  UNAVAILABLE
+}
+
+enum WorkAllocationSource {
+  MANUAL
+  TASK_ASSIGNMENT
+  CALENDAR
+  TIME_ENTRY
+  SYSTEM
+}
+
+enum WorkAllocationStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model WorkAllocation {
+  id             String              @id @default(uuid())
+  type           WorkAllocationType
+  source         WorkAllocationSource
+  status         WorkAllocationStatus @default(PLANNED)
+  startsAt       DateTime
+  endsAt         DateTime
+  plannedMinutes Int
+  actualMinutes  Int                 @default(0)
+  title          String
+  user           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  project        Project?            @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  projectId      String?
+  task           Task?               @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  taskId         String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@index([userId, startsAt])
+  @@index([projectId, startsAt])
+  @@index([taskId, startsAt])
 }
 
 model Skill {

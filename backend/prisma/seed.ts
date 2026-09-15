@@ -26,6 +26,7 @@ async function main() {
   await prisma.$transaction(async (tx) => {
     // This is intentionally a full local demo reset. It does not touch schema or migrations.
     await tx.taskCommentMention.deleteMany();
+    await tx.workAllocation.deleteMany();
     await tx.decisionEvidence.deleteMany();
     await tx.decisionPerson.deleteMany();
     await tx.decisionTask.deleteMany();
@@ -154,8 +155,25 @@ async function main() {
       ],
     });
 
-    await tx.availability.create({ data: { userId: karim.id, startsAt: atDay(monday, 4, 13), endsAt: atDay(monday, 4, 17), reason: "Medical appointment" } });
-    await tx.availability.create({ data: { userId: sarah.id, startsAt: atDay(monday, 2, 9), endsAt: atDay(monday, 2, 12), reason: "Customer training" } });
+    const unavailableWindows = [
+      { userId: karim.id, startsAt: atDay(monday, 4, 13), endsAt: atDay(monday, 4, 17), reason: "Medical appointment" },
+      { userId: sarah.id, startsAt: atDay(monday, 2, 9), endsAt: atDay(monday, 2, 12), reason: "Customer training" },
+    ];
+    for (const window of unavailableWindows) {
+      await tx.availability.create({ data: window });
+      await tx.workAllocation.create({
+        data: {
+          userId: window.userId,
+          title: window.reason,
+          type: "UNAVAILABLE",
+          source: "MANUAL",
+          status: "PLANNED",
+          startsAt: window.startsAt,
+          endsAt: window.endsAt,
+          plannedMinutes: Math.round((window.endsAt.getTime() - window.startsAt.getTime()) / 60000),
+        },
+      });
+    }
 
     const blocks = [
       { userId: ali.id, projectId: plant.id, taskId: plcTask.id, title: "PLC architecture work", kind: TimeBlockKind.WORK, startsAt: atDay(monday, 0, 9), endsAt: atDay(monday, 0, 13) },
@@ -179,6 +197,27 @@ async function main() {
         assignmentId = assignment.id;
       }
       await tx.timeBlock.create({ data: { ...block, assignmentId } });
+      const allocationType = block.taskId
+        ? "TASK"
+        : block.kind === TimeBlockKind.MEETING
+          ? "MEETING"
+          : block.kind === TimeBlockKind.SUPPORT
+            ? "SUPPORT"
+            : "ADMIN";
+      await tx.workAllocation.create({
+        data: {
+          userId: block.userId,
+          projectId: block.projectId,
+          taskId: block.taskId,
+          title: block.title,
+          type: allocationType,
+          source: block.taskId ? "TASK_ASSIGNMENT" : "MANUAL",
+          status: "PLANNED",
+          startsAt: block.startsAt,
+          endsAt: block.endsAt,
+          plannedMinutes: Math.round((block.endsAt.getTime() - block.startsAt.getTime()) / 60000),
+        },
+      });
     }
   });
 

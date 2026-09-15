@@ -124,6 +124,30 @@ export interface TimelineData {
   projects: TimelineProject[];
 }
 
+export type WorkAllocationType = "TASK" | "MEETING" | "SUPPORT" | "ADMIN" | "TRAINING" | "UNPLANNED" | "UNAVAILABLE";
+export type WorkAllocationSource = "MANUAL" | "TASK_ASSIGNMENT" | "CALENDAR" | "TIME_ENTRY" | "SYSTEM";
+export type WorkAllocationStatus = "PLANNED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+
+export interface WorkAllocation {
+  id: string;
+  type: WorkAllocationType;
+  source: WorkAllocationSource;
+  status: WorkAllocationStatus;
+  startsAt: string;
+  endsAt: string;
+  plannedMinutes: number;
+  actualMinutes: number;
+  title: string;
+  project: { id: string; name: string } | null;
+  task: { id: string; title: string; status: TaskStatus } | null;
+}
+
+export interface WorkAllocationData {
+  weekStart: string;
+  weekEnd: string;
+  allocations: WorkAllocation[];
+}
+
 export interface TaskAssignment {
   id: string;
   plannedMinutes: number;
@@ -324,6 +348,8 @@ export const api = {
   subscribeToProject,
 
   getMyTimeline: (start: string) => request<TimelineData>(`/api/resources/me/timeline?start=${encodeURIComponent(start)}`),
+
+  getMyAllocations: (start: string) => request<WorkAllocationData>(`/api/resources/me/allocations?start=${encodeURIComponent(start)}`),
 
   setWeeklyCapacity: (weeklyCapacityMinutes: number) =>
     request<{ weeklyCapacityMinutes: number }>("/api/resources/me/capacity", {

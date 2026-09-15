@@ -47,12 +47,18 @@ npm run dev              # starts the API on http://localhost:4000
 
 The demo seed clears all local application data before creating a realistic workspace with three
 projects, four users, tasks, skills, blockers, comments, decisions, assignments, availability,
-planned time, and logged time. All demo users use the password `demo1234`:
+planned time, work allocations, and logged time. All demo users use the password `demo1234`:
 `amina@demo.waypoint.local`, `ali@demo.waypoint.local`, `sarah@demo.waypoint.local`, and
 `karim@demo.waypoint.local`.
 Open **Team capacity** after seeding to see Karim intentionally overloaded at about 139% and
 Sarah flagged for context switching across three projects. Open **My timeline** to inspect the
 planned work, meetings, support block, and unavailable time behind those signals.
+
+The resource engine also exposes the canonical weekly allocation read model at
+`GET /api/resources/me/allocations`. `WorkAllocation` unifies planned task work, meetings,
+support, administration, training, unplanned work, and unavailable time. `TimeEntry` remains
+the source of truth for actual work; synchronizing actual minutes into allocations is the next
+resource-engine step.
 
 `npx prisma migrate dev` needs internet access the first time (it downloads Prisma's local query
 engine). If you're on a locked-down corporate network and it fails, try again from an
@@ -115,7 +121,7 @@ pm-app/
 │       └── utils/jwt.ts
 └── frontend/
     └── src/
-        ├── api/client.ts         # typed fetch wrapper for the API
+      ├── api/client.ts         # typed fetch wrapper for the API
         ├── context/AuthContext.tsx
       ├── pages/                # Login, Projects, Board, MyTasks, ProjectMemory
         └── components/           # Layout, TaskCard, TaskModal, TimelineView
