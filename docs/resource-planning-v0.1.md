@@ -8,10 +8,7 @@ The core model is **person × time × work × project × capacity**. A task can 
 
 ## Users and decisions
 
-- Team members plan their own work blocks, meetings, support work, and unavailable time.
-- Project members can plan a task allocation for any teammate in that project.
-- Managers use the Team capacity view to inspect the current week, workload percentage, planned versus actual hours, and project allocation.
-- An overloaded person is one whose planned minutes exceed their weekly capacity after unavailable time is deducted.
+ Context switching is surfaced when a person has planned work across three or more projects in the selected week.
 
 ## V0.1 entities
 
@@ -20,6 +17,7 @@ The core model is **person × time × work × project × capacity**. A task can 
 | `User` | Identity and default weekly capacity (40 hours by default). |
 | `Project`, `Task` | Existing work hierarchy. |
 | `TaskAssignment` | A planned allocation of a task to a person on a date, measured in minutes. |
+ The capacity dashboard surfaces overload and context-switching signals alongside the underlying numbers.
 | `TimeBlock` | A dated calendar block: work, meeting, support, or other. Task plans create a linked work block. |
 | `Availability` | A time range in which someone cannot be scheduled; it reduces capacity. |
 | `TimeEntry` | Existing actual work record. It is never overwritten by planning data. |

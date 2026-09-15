@@ -335,6 +335,8 @@ router.get("/team-capacity", async (req, res) => {
       actualMinutes,
       workloadPercent: capacityMinutes === 0 ? (plannedMinutes > 0 ? 100 : 0) : Math.round((plannedMinutes / capacityMinutes) * 100),
       isOverloaded: plannedMinutes > capacityMinutes,
+      projectCount: projectMinutes.size,
+      contextSwitching: projectMinutes.size >= 3,
       projectAllocations: [...projectMinutes.entries()].map(([projectId, allocation]) => ({ projectId, ...allocation })),
     };
   }).sort((a, b) => b.workloadPercent - a.workloadPercent || a.name.localeCompare(b.name));

@@ -139,6 +139,8 @@ export interface CapacityPerson extends User {
   actualMinutes: number;
   workloadPercent: number;
   isOverloaded: boolean;
+  projectCount: number;
+  contextSwitching: boolean;
   projectAllocations: { projectId: string; name: string; minutes: number }[];
 }
 
